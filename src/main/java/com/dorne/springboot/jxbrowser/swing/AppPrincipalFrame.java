@@ -1,8 +1,8 @@
 package com.dorne.springboot.jxbrowser.swing;
 
-import com.teamdev.jxbrowser.chromium.Browser;
-import com.teamdev.jxbrowser.chromium.BrowserPreferences;
+import com.teamdev.jxbrowser.chromium.*;
 import com.teamdev.jxbrowser.chromium.swing.BrowserView;
+import com.teamdev.jxbrowser.chromium.swing.DefaultDialogHandler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -11,6 +11,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Component
 public class AppPrincipalFrame extends JFrame implements CommandLineRunner {
@@ -69,6 +73,42 @@ public class AppPrincipalFrame extends JFrame implements CommandLineRunner {
                         frameDebug.setVisible(true);
                         browserDebug.loadURL(remoteDebuggingURL);
                     }
+
+                    browser.setDialogHandler(new DefaultDialogHandler(view) {
+                        @Override
+                        public CloseStatus onFileChooser(final FileChooserParams params) {
+                            final AtomicReference<CloseStatus> result = new AtomicReference<CloseStatus>(
+                                    CloseStatus.CANCEL);
+
+                            try {
+                                SwingUtilities.invokeAndWait(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                            System.out.println("params.getMode(): "+params.getMode());
+                                            JFileChooser fileChooser = new JFileChooser();
+                                            if (params.getMode() == FileChooserMode.OpenFolder){
+                                                fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                                            }else {
+                                                fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                                            }
+                                            if (fileChooser.showOpenDialog(view)
+                                                    == JFileChooser.APPROVE_OPTION) {
+                                                File selectedFile = fileChooser.getSelectedFile();
+                                                params.setSelectedFiles(selectedFile.getAbsolutePath());
+                                                browser.executeJavaScript("window.__JFileChooser = '"+selectedFile.getAbsolutePath()+"';");
+                                                result.set(CloseStatus.OK);
+                                            }
+                                    }
+                                });
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            } catch (InvocationTargetException e) {
+                                e.printStackTrace();
+                            }
+
+                            return result.get();
+                        }
+                    });
 
                     frame.addWindowListener(new WindowListener() {
                         @Override

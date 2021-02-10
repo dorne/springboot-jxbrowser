@@ -1,0 +1,31 @@
+<html>
+<div>
+    <label for="uploaddir" style="width: 600px; background: #ccc;border: 1px solid black;">Choose directory to upload</label>
+    <input type="file" id="uploaddir" webkitdirectory onchange="uploaddirChange()" style="opacity:0;">
+</div>
+<div>
+    <div id="diroutput"></div>
+</div>
+
+<div>
+    <label for="uploadfile" style="width: 600px; background: #ccc;border: 1px solid black;">Choose file to upload</label>
+    <input type="file" id="uploadfile" onchange="uploadfilChange()" style="opacity:0;">
+</div>
+<div>
+    <div id="fileoutput"></div>
+</div>
+
+
+</html>
+
+<script>
+    var diroutput = document.getElementById('diroutput');
+    function uploaddirChange() {
+        diroutput.innerHTML = window.__JFileChooser;
+    }
+
+    var fileoutput = document.getElementById('fileoutput');
+    function uploadfilChange() {
+        fileoutput.innerHTML = window.__JFileChooser;
+    }
+</script>
