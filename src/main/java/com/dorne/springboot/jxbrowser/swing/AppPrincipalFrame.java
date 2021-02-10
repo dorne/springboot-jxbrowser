@@ -1,6 +1,7 @@
 package com.dorne.springboot.jxbrowser.swing;
 
 import com.teamdev.jxbrowser.chromium.Browser;
+import com.teamdev.jxbrowser.chromium.BrowserPreferences;
 import com.teamdev.jxbrowser.chromium.swing.BrowserView;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -26,6 +27,12 @@ public class AppPrincipalFrame extends JFrame implements CommandLineRunner {
     @Value( "${dorne.jxbrowser.index}" )
     private String index;
 
+    @Value( "${dorne.jxbrowser.debugger}" )
+    private boolean debugger;
+
+    @Value( "${dorne.jxbrowser.debugging-port}" )
+    private String debuggingPort;
+
     private JPanel contentPane;
 
     @Override
@@ -35,6 +42,10 @@ public class AppPrincipalFrame extends JFrame implements CommandLineRunner {
             @Override
             public void run() {
                 try {
+                    if (debugger) {
+                        BrowserPreferences.setChromiumSwitches("--remote-debugging-port="+debuggingPort);
+                    }
+
                     AppPrincipalFrame frame = new AppPrincipalFrame();
                     frame.setTitle(title);
                     Browser browser = new Browser();
@@ -45,6 +56,19 @@ public class AppPrincipalFrame extends JFrame implements CommandLineRunner {
                     frame.setLocationRelativeTo(null);
                     frame.setVisible(true);
                     browser.loadURL(index);
+
+                    if (debugger) {
+                        String remoteDebuggingURL = browser.getRemoteDebuggingURL();
+                        Browser browserDebug = new Browser();
+                        BrowserView browserViewDebug = new BrowserView(browserDebug);
+                        JFrame frameDebug = new JFrame();
+                        frameDebug.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+                        frameDebug.add(browserViewDebug, BorderLayout.CENTER);
+                        frameDebug.setSize(700, 500);
+                        frameDebug.setLocationRelativeTo(null);
+                        frameDebug.setVisible(true);
+                        browserDebug.loadURL(remoteDebuggingURL);
+                    }
 
                     frame.addWindowListener(new WindowListener() {
                         @Override
