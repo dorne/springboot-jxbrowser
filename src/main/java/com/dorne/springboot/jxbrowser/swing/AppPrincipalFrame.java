@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PreDestroy;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowEvent;
@@ -38,7 +39,20 @@ public class AppPrincipalFrame extends JFrame implements CommandLineRunner {
     @Value( "${dorne.jxbrowser.debugging-port}" )
     private String debuggingPort;
 
-    private JPanel contentPane;
+    Browser browser;
+    Browser browserDebug;
+
+    @PreDestroy
+    public void onDestroy() throws Exception {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                browser.dispose();
+                browserDebug.dispose();
+            }
+        }).start();
+        System.out.println("Spring Container is destroyed!");
+    }
 
     @Override
     public void run(String... arg0) throws Exception {
@@ -53,7 +67,7 @@ public class AppPrincipalFrame extends JFrame implements CommandLineRunner {
 
                     AppPrincipalFrame frame = new AppPrincipalFrame();
                     frame.setTitle(title);
-                    Browser browser = new Browser();
+                    browser = new Browser();
                     BrowserView view = new BrowserView(browser);
                     frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
                     frame.add(view, BorderLayout.CENTER);
@@ -62,10 +76,9 @@ public class AppPrincipalFrame extends JFrame implements CommandLineRunner {
                     frame.setVisible(true);
                     browser.loadURL(index);
 
-                    Browser browserDebug = null;
                     if (debugger) {
                         String remoteDebuggingURL = browser.getRemoteDebuggingURL();
-                        browserDebug = new Browser();
+                        Browser browserDebug = new Browser();
                         BrowserView browserViewDebug = new BrowserView(browserDebug);
                         JFrame frameDebug = new JFrame();
                         frameDebug.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -82,7 +95,6 @@ public class AppPrincipalFrame extends JFrame implements CommandLineRunner {
                         public CloseStatus onFileChooser(final FileChooserParams params) {
                             final AtomicReference<CloseStatus> result = new AtomicReference<CloseStatus>(
                                     CloseStatus.CANCEL);
-
                             try {
                                 SwingUtilities.invokeAndWait(new Runnable() {
                                     @Override
@@ -108,11 +120,11 @@ public class AppPrincipalFrame extends JFrame implements CommandLineRunner {
                             } catch (InvocationTargetException e) {
                                 e.printStackTrace();
                             }
-
                             return result.get();
                         }
                     });
 
+                    //js调用java
                     browser.addScriptContextListener(new ScriptContextAdapter() {
                         @Override
                         public void onScriptContextCreated(ScriptContextEvent event) {
@@ -122,53 +134,6 @@ public class AppPrincipalFrame extends JFrame implements CommandLineRunner {
                         }
                     });
 
-
-                    Browser finalBrowserDebug = browserDebug;
-                    frame.addWindowListener(new WindowListener() {
-                        @Override
-                        public void windowOpened(WindowEvent e) {
-
-                        }
-
-                        @Override
-                        public void windowClosing(WindowEvent e) {
-                            System.out.println("windowClosing");
-                            new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    browser.dispose();
-                                    if (finalBrowserDebug != null) {
-                                        finalBrowserDebug.dispose();
-                                    }
-                                }
-                            }).start();
-                        }
-
-                        @Override
-                        public void windowClosed(WindowEvent e) {
-
-                        }
-
-                        @Override
-                        public void windowIconified(WindowEvent e) {
-
-                        }
-
-                        @Override
-                        public void windowDeiconified(WindowEvent e) {
-
-                        }
-
-                        @Override
-                        public void windowActivated(WindowEvent e) {
-
-                        }
-
-                        @Override
-                        public void windowDeactivated(WindowEvent e) {
-
-                        }
-                    });
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
