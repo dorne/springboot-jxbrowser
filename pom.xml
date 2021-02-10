@@ -8,18 +8,29 @@
         <version>2.4.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.dorne</groupId>
-    <artifactId>demo</artifactId>
+    <groupId>com.dorne.springboot.jxbrowser</groupId>
+    <artifactId>springboot-jxbrowser</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>demo</name>
+    <name>springboot-jxbrowser</name>
     <description>Demo jxBrowser for Spring Boot</description>
     <properties>
         <java.version>11</java.version>
     </properties>
     <dependencies>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-undertow</artifactId>
         </dependency>
 
         <dependency>
@@ -33,13 +44,61 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.teamdev.jxbrowser</groupId>
+            <artifactId>jxbrowser-mac</artifactId>
+            <version>6.24.3</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/jxbrowser-mac-6.24.3.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>com.teamdev.jxbrowser</groupId>
+            <artifactId>jxbrowser</artifactId>
+            <version>6.24.3</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/jxbrowser-6.24.3.jar</systemPath>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
+                <groupId>io.github.fvarrui</groupId>
+                <artifactId>javapackager</artifactId>
+                <version>1.5.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>package</goal>
+                        </goals>
+                        <configuration>
+                            <!-- mandatory -->
+                            <mainClass>com.dorne.springboot.jxbrowser.MainApplication</mainClass>
+                            <!-- optional -->
+                            <bundleJre>true</bundleJre>
+                            <platform>auto</platform>
+                            <classpath>
+                                jxbrowser-6.24.3.jar;jxbrowser-mac-6.24.3.jar
+                            </classpath>
+                            <additionalResources>
+                                <additionalResource>${basedir}/lib/jxbrowser-mac-6.24.3.jar</additionalResource>
+                                <additionalResource>${basedir}/lib/jxbrowser-6.24.3.jar</additionalResource>
+                                <additionalResource>${basedir}/src/main/resources/splash.png</additionalResource>
+                            </additionalResources>
+                            <vmArgs>-splash:splash.png -Dapple.awt.application.appearance=system</vmArgs>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <includeSystemScope>true</includeSystemScope>
+                </configuration>
             </plugin>
         </plugins>
     </build>
