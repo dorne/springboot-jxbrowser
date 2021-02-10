@@ -70,6 +70,15 @@ public class AppPrincipalFrame extends JFrame implements CommandLineRunner {
                     frame.add(view, BorderLayout.CENTER);
                     frame.setSize(width, height);
                     frame.setLocationRelativeTo(null);
+                    String css =
+                            "*, body { " +
+                                    "font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", \"PingFang SC\", \"Hiragino Sans GB\", \"Microsoft YaHei\", \"Helvetica Neue\", Helvetica, Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\";" +
+                                    "font-size: 14px; " +
+                                    "font-weight: normal;" +
+                            "}";
+                    System.out.println("css");
+                    System.out.println(css);
+                    browser.setCustomStyleSheet(css);
                     browser.loadURL(index);
 
                     if (debugger) {
@@ -138,7 +147,7 @@ public class AppPrincipalFrame extends JFrame implements CommandLineRunner {
                         public void onFinishLoadingFrame(FinishLoadingEvent event) {
                             if (event.isMainFrame()) {
                                 System.out.println("<<<<-----Main frame has finished loading------>>>>");
-                                Timer timer = new Timer(800, new ActionListener() {
+                                Timer timer = new Timer(1000, new ActionListener() {
                                     @Override
                                     public void actionPerformed(ActionEvent e) {
                                         frame.setVisible(true);
