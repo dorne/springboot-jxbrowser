@@ -12,8 +12,6 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PreDestroy;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -83,7 +81,7 @@ public class AppPrincipalFrame extends JFrame implements CommandLineRunner {
                         JFrame frameDebug = new JFrame();
                         frameDebug.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
                         frameDebug.add(browserViewDebug, BorderLayout.CENTER);
-                        frameDebug.setSize(700, 500);
+                        frameDebug.setSize(width, height);
                         frameDebug.setLocationRelativeTo(null);
                         frameDebug.setVisible(true);
                         browserDebug.loadURL(remoteDebuggingURL);

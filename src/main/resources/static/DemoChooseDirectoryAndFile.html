@@ -34,8 +34,16 @@
         fileoutput.innerHTML = window.__JFileChooser;
     }
 
+    //调用java方法
     var javacall = document.getElementById('javacall');
     var javacallRes = 'jarHome:'+window.JAVA_utils.jarHome();
     console.log(javacallRes);
     javacall.innerText = javacallRes;
+
+    //监听键盘测试
+    document.onkeypress = function (e) {
+        e = e || window.event;
+        // use e.keyCode
+        console.log(e);
+    };
 </script>
