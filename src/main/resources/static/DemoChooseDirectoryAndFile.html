@@ -16,6 +16,11 @@
 </div>
 
 
+<div>
+    <div id="javacall"></div>
+</div>
+
+
 </html>
 
 <script>
@@ -28,4 +33,9 @@
     function uploadfilChange() {
         fileoutput.innerHTML = window.__JFileChooser;
     }
+
+    var javacall = document.getElementById('javacall');
+    var javacallRes = 'jarHome:'+window.JAVA_utils.jarHome();
+    console.log(javacallRes);
+    javacall.innerText = javacallRes;
 </script>

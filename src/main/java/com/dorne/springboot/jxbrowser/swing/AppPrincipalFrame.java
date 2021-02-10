@@ -1,6 +1,8 @@
 package com.dorne.springboot.jxbrowser.swing;
 
 import com.teamdev.jxbrowser.chromium.*;
+import com.teamdev.jxbrowser.chromium.events.ScriptContextAdapter;
+import com.teamdev.jxbrowser.chromium.events.ScriptContextEvent;
 import com.teamdev.jxbrowser.chromium.swing.BrowserView;
 import com.teamdev.jxbrowser.chromium.swing.DefaultDialogHandler;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,7 +14,6 @@ import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -61,9 +62,10 @@ public class AppPrincipalFrame extends JFrame implements CommandLineRunner {
                     frame.setVisible(true);
                     browser.loadURL(index);
 
+                    Browser browserDebug = null;
                     if (debugger) {
                         String remoteDebuggingURL = browser.getRemoteDebuggingURL();
-                        Browser browserDebug = new Browser();
+                        browserDebug = new Browser();
                         BrowserView browserViewDebug = new BrowserView(browserDebug);
                         JFrame frameDebug = new JFrame();
                         frameDebug.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -74,6 +76,7 @@ public class AppPrincipalFrame extends JFrame implements CommandLineRunner {
                         browserDebug.loadURL(remoteDebuggingURL);
                     }
 
+                    //选择文件
                     browser.setDialogHandler(new DefaultDialogHandler(view) {
                         @Override
                         public CloseStatus onFileChooser(final FileChooserParams params) {
@@ -110,6 +113,17 @@ public class AppPrincipalFrame extends JFrame implements CommandLineRunner {
                         }
                     });
 
+                    browser.addScriptContextListener(new ScriptContextAdapter() {
+                        @Override
+                        public void onScriptContextCreated(ScriptContextEvent event) {
+                            Browser browser = event.getBrowser();
+                            JSValue window = browser.executeJavaScriptAndReturnValue("window");
+                            window.asObject().setProperty("JAVA_utils", new Utils());
+                        }
+                    });
+
+
+                    Browser finalBrowserDebug = browserDebug;
                     frame.addWindowListener(new WindowListener() {
                         @Override
                         public void windowOpened(WindowEvent e) {
@@ -123,6 +137,9 @@ public class AppPrincipalFrame extends JFrame implements CommandLineRunner {
                                 @Override
                                 public void run() {
                                     browser.dispose();
+                                    if (finalBrowserDebug != null) {
+                                        finalBrowserDebug.dispose();
+                                    }
                                 }
                             }).start();
                         }
