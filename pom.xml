@@ -87,6 +87,7 @@
                                 <additionalResource>${basedir}/lib/jxbrowser-mac-6.24.3.jar</additionalResource>
                                 <additionalResource>${basedir}/lib/jxbrowser-6.24.3.jar</additionalResource>
                                 <additionalResource>${basedir}/src/main/resources/splash.png</additionalResource>
+                                <additionalResource>${basedir}/src/main/resources/application.yaml</additionalResource>
                             </additionalResources>
                             <vmArgs>-splash:splash.png -Dapple.awt.application.appearance=system</vmArgs>
                         </configuration>

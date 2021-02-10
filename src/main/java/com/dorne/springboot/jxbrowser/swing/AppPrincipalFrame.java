@@ -2,6 +2,7 @@ package com.dorne.springboot.jxbrowser.swing;
 
 import com.teamdev.jxbrowser.chromium.Browser;
 import com.teamdev.jxbrowser.chromium.swing.BrowserView;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +14,18 @@ import java.awt.event.WindowListener;
 @Component
 public class AppPrincipalFrame extends JFrame implements CommandLineRunner {
 
+    @Value( "${dorne.swing.title}" )
+    private String title;
+
+    @Value( "${dorne.swing.height}" )
+    private int height;
+
+    @Value( "${dorne.swing.width}" )
+    private int width;
+
+    @Value( "${dorne.jxbrowser.index}" )
+    private String index;
+
     private JPanel contentPane;
 
     @Override
@@ -23,15 +36,15 @@ public class AppPrincipalFrame extends JFrame implements CommandLineRunner {
             public void run() {
                 try {
                     AppPrincipalFrame frame = new AppPrincipalFrame();
-                    frame.setTitle("spring boot jxbrowswer");
+                    frame.setTitle(title);
                     Browser browser = new Browser();
                     BrowserView view = new BrowserView(browser);
                     frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
                     frame.add(view, BorderLayout.CENTER);
-                    frame.setSize(1000, 800);
+                    frame.setSize(width, height);
                     frame.setLocationRelativeTo(null);
                     frame.setVisible(true);
-                    browser.loadURL("http://127.0.0.1:9090/index.html");
+                    browser.loadURL(index);
 
                     frame.addWindowListener(new WindowListener() {
                         @Override

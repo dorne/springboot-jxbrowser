@@ -1,3 +1,11 @@
+dorne:
+  jxbrowser:
+    index: "http://127.0.0.1:${server.port}/index.html"
+  swing:
+    title: "springboot-jxbrowser"
+    width: 1000
+    height: 800
+
 server:
   port: 9090
 
