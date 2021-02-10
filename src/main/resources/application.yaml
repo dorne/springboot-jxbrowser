@@ -2,7 +2,7 @@ dorne:
   jxbrowser:
     debugger: false
     debugging-port: 9222
-    index: "http://127.0.0.1:${server.port}/DemoChooseDirectoryAndFile.html"
+    index: "http://127.0.0.1:${server.port}/index.html"
   swing:
     title: "springboot-jxbrowser"
     width: 1000
@@ -13,4 +13,4 @@ server:
 
 spring:
   main:
-    lazy-initialization: true
+    lazy-initialization: false

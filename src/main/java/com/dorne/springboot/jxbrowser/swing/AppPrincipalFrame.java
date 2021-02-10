@@ -1,8 +1,7 @@
 package com.dorne.springboot.jxbrowser.swing;
 
 import com.teamdev.jxbrowser.chromium.*;
-import com.teamdev.jxbrowser.chromium.events.ScriptContextAdapter;
-import com.teamdev.jxbrowser.chromium.events.ScriptContextEvent;
+import com.teamdev.jxbrowser.chromium.events.*;
 import com.teamdev.jxbrowser.chromium.swing.BrowserView;
 import com.teamdev.jxbrowser.chromium.swing.DefaultDialogHandler;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +11,8 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PreDestroy;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -37,8 +38,9 @@ public class AppPrincipalFrame extends JFrame implements CommandLineRunner {
     @Value( "${dorne.jxbrowser.debugging-port}" )
     private String debuggingPort;
 
-    Browser browser;
-    Browser browserDebug;
+    public final JFrame frame = new JFrame();;
+    public final Browser browser = new Browser();
+    public final Browser browserDebug = new Browser();
 
     @PreDestroy
     public void onDestroy() throws Exception {
@@ -62,21 +64,16 @@ public class AppPrincipalFrame extends JFrame implements CommandLineRunner {
                     if (debugger) {
                         BrowserPreferences.setChromiumSwitches("--remote-debugging-port="+debuggingPort);
                     }
-
-                    AppPrincipalFrame frame = new AppPrincipalFrame();
                     frame.setTitle(title);
-                    browser = new Browser();
                     BrowserView view = new BrowserView(browser);
                     frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
                     frame.add(view, BorderLayout.CENTER);
                     frame.setSize(width, height);
                     frame.setLocationRelativeTo(null);
-                    frame.setVisible(true);
                     browser.loadURL(index);
 
                     if (debugger) {
                         String remoteDebuggingURL = browser.getRemoteDebuggingURL();
-                        Browser browserDebug = new Browser();
                         BrowserView browserViewDebug = new BrowserView(browserDebug);
                         JFrame frameDebug = new JFrame();
                         frameDebug.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -119,6 +116,54 @@ public class AppPrincipalFrame extends JFrame implements CommandLineRunner {
                                 e.printStackTrace();
                             }
                             return result.get();
+                        }
+                    });
+
+                    browser.addLoadListener(new LoadAdapter() {
+                        @Override
+                        public void onStartLoadingFrame(StartLoadingEvent event) {
+                            if (event.isMainFrame()) {
+                                System.out.println("Main frame has started loading");
+                            }
+                        }
+
+                        @Override
+                        public void onProvisionalLoadingFrame(ProvisionalLoadingEvent event) {
+                            if (event.isMainFrame()) {
+                                System.out.println("Provisional load was committed for a frame");
+                            }
+                        }
+
+                        @Override
+                        public void onFinishLoadingFrame(FinishLoadingEvent event) {
+                            if (event.isMainFrame()) {
+                                System.out.println("<<<<-----Main frame has finished loading------>>>>");
+                                Timer timer = new Timer(800, new ActionListener() {
+                                    @Override
+                                    public void actionPerformed(ActionEvent e) {
+                                        frame.setVisible(true);
+                                    }
+                                });
+                                timer.start();
+                            }
+                        }
+
+                        @Override
+                        public void onFailLoadingFrame(FailLoadingEvent event) {
+                            NetError errorCode = event.getErrorCode();
+                            if (event.isMainFrame()) {
+                                System.out.println("Main frame has failed loading: " + errorCode);
+                            }
+                        }
+
+                        @Override
+                        public void onDocumentLoadedInFrame(FrameLoadEvent event) {
+                            System.out.println("Frame document is loaded.");
+                        }
+
+                        @Override
+                        public void onDocumentLoadedInMainFrame(LoadEvent event) {
+                            System.out.println("Main frame document is loaded.");
                         }
                     });
 
