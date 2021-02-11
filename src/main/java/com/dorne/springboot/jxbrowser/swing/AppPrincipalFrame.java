@@ -13,6 +13,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Component
@@ -76,14 +78,8 @@ public class AppPrincipalFrame extends JFrame implements CommandLineRunner {
                     frame.setSize(width, height);
                     frame.setLocationRelativeTo(null);
                     frame.setVisible(false);
-                    String css =
-                            "*, body { " +
-                                    "font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", \"PingFang SC\", \"Hiragino Sans GB\", \"Microsoft YaHei\", \"Helvetica Neue\", Helvetica, Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\";" +
-                                    "font-size: 14px; " +
-                                    "font-weight: normal;" +
-                            "}";
-                    System.out.println("css");
-                    System.out.println(css);
+                    //加载初始化css
+                    String css = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("init.css").getPath())));
                     browser.setCustomStyleSheet(css);
                     browser.loadURL(index);
 
