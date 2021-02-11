@@ -47,11 +47,10 @@ public class AppPrincipalFrame extends JFrame implements CommandLineRunner {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                browser.dispose();
-                if (browserDebug != null){
-                    browserDebug.dispose();
+                if (debugger){
+                    browserDebug.stop();
                 }
-
+                browser.dispose();
             }
         }).start();
         System.out.println("Spring Container is destroyed!");
@@ -83,7 +82,7 @@ public class AppPrincipalFrame extends JFrame implements CommandLineRunner {
 
                     if (debugger) {
                         String remoteDebuggingURL = browser.getRemoteDebuggingURL();
-                        browserDebug = new Browser();
+                        browserDebug = new Browser(BrowserType.LIGHTWEIGHT);
                         BrowserView browserViewDebug = new BrowserView(browserDebug);
                         JFrame frameDebug = new JFrame();
                         frameDebug.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
