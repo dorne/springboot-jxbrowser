@@ -123,7 +123,7 @@
                                 <additionalResource>${basedir}/src/main/resources/application.yaml</additionalResource>
                                 <additionalResource>${basedir}/src/main/resources/init.css</additionalResource>
                             </additionalResources>
-                            <vmArgs>-splash:splash.png -Dapple.awt.application.appearance=system</vmArgs>
+                            <vmArgs>-splash:splash.png -Dapple.awt.application.appearance=system -Djxbrowser.ipc.external=true</vmArgs>
                         </configuration>
                     </execution>
                 </executions>

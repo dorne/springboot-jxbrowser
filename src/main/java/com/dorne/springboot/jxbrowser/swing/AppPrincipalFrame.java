@@ -47,10 +47,8 @@ public class AppPrincipalFrame extends JFrame implements CommandLineRunner {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                browser.getCacheStorage().clearCache();
                 browser.dispose();
                 if (browserDebug != null){
-                    browserDebug.getCacheStorage().clearCache();
                     browserDebug.dispose();
                 }
 
@@ -71,7 +69,7 @@ public class AppPrincipalFrame extends JFrame implements CommandLineRunner {
                     }
                     frame = new JFrame();
                     frame.setTitle(title);
-                    browser = new Browser(BrowserType.HEAVYWEIGHT);
+                    browser = new Browser(BrowserType.LIGHTWEIGHT);
                     BrowserView view = new BrowserView(browser);
                     frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
                     frame.add(view, BorderLayout.CENTER);
