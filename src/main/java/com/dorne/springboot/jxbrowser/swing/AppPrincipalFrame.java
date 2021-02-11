@@ -11,8 +11,6 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PreDestroy;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -38,17 +36,22 @@ public class AppPrincipalFrame extends JFrame implements CommandLineRunner {
     @Value( "${dorne.jxbrowser.debugging-port}" )
     private String debuggingPort;
 
-    public final JFrame frame = new JFrame();;
-    public final Browser browser = new Browser();
-    public final Browser browserDebug = new Browser();
+    public JFrame frame;
+    public Browser browser;
+    public Browser browserDebug;
 
     @PreDestroy
     public void onDestroy() throws Exception {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                browser.getCacheStorage().clearCache();
                 browser.dispose();
-                browserDebug.dispose();
+                if (browserDebug != null){
+                    browserDebug.getCacheStorage().clearCache();
+                    browserDebug.dispose();
+                }
+
             }
         }).start();
         System.out.println("Spring Container is destroyed!");
@@ -64,12 +67,15 @@ public class AppPrincipalFrame extends JFrame implements CommandLineRunner {
                     if (debugger) {
                         BrowserPreferences.setChromiumSwitches("--remote-debugging-port="+debuggingPort);
                     }
+                    frame = new JFrame();
                     frame.setTitle(title);
+                    browser = new Browser(BrowserType.HEAVYWEIGHT);
                     BrowserView view = new BrowserView(browser);
                     frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
                     frame.add(view, BorderLayout.CENTER);
                     frame.setSize(width, height);
                     frame.setLocationRelativeTo(null);
+                    frame.setVisible(false);
                     String css =
                             "*, body { " +
                                     "font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", \"PingFang SC\", \"Hiragino Sans GB\", \"Microsoft YaHei\", \"Helvetica Neue\", Helvetica, Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\";" +
@@ -83,6 +89,7 @@ public class AppPrincipalFrame extends JFrame implements CommandLineRunner {
 
                     if (debugger) {
                         String remoteDebuggingURL = browser.getRemoteDebuggingURL();
+                        browserDebug = new Browser();
                         BrowserView browserViewDebug = new BrowserView(browserDebug);
                         JFrame frameDebug = new JFrame();
                         frameDebug.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -147,13 +154,12 @@ public class AppPrincipalFrame extends JFrame implements CommandLineRunner {
                         public void onFinishLoadingFrame(FinishLoadingEvent event) {
                             if (event.isMainFrame()) {
                                 System.out.println("<<<<-----Main frame has finished loading------>>>>");
-                                Timer timer = new Timer(1000, new ActionListener() {
-                                    @Override
-                                    public void actionPerformed(ActionEvent e) {
-                                        frame.setVisible(true);
-                                    }
-                                });
-                                timer.start();
+                                try {
+                                    Thread.sleep(1000);
+                                } catch (InterruptedException ie) {
+                                    Thread.currentThread().interrupt();
+                                }
+                                frame.setVisible(true);
                             }
                         }
 
